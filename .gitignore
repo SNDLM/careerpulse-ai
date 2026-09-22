@@ -19,3 +19,9 @@ __pycache__/
 *.log
 .coverage
 htmlcov/
+
+# Local datasets
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
