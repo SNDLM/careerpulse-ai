@@ -1,0 +1,21 @@
+# Archivos que no se deben subir a GitHub
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environment
+.venv/
+
+# Environment variables and secrets
+.env
+
+# VS Code
+.vscode/
+
+# Logs and test reports
+*.log
+.coverage
+htmlcov/
