@@ -33,3 +33,18 @@ def normalize_technology(value: str) -> str:
     """Return a consistent display name for a technology."""
     normalized_value = value.strip().lower()
     return TECHNOLOGY_ALIASES.get(normalized_value, normalized_value.title())
+
+def transform_job_record(
+    record: dict[str, str],
+) -> dict[str, str | int | bool]:
+    """Clean and convert a raw job record."""
+    return {
+        "job_id": int(record["job_id"]),
+        "title": record["title"].strip(),
+        "company": record["company"].strip(),
+        "location": record["location"].strip(),
+        "technology": normalize_technology(record["technology"]),
+        "salary_min": int(record["salary_min"]),
+        "salary_max": int(record["salary_max"]),
+        "remote": record["remote"].strip().lower() == "true",
+    }    
