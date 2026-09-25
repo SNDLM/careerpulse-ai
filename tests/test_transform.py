@@ -1,4 +1,8 @@
-from careerpulse.transform import normalize_technology, transform_job_record
+from careerpulse.transform import (
+    normalize_technology,
+    transform_job_record,
+    transform_jobs,
+)
 
 
 def test_normalize_known_aliases() -> None:
@@ -34,3 +38,24 @@ def test_transform_job_record() -> None:
         assert transformed_job["technology"] == "AWS"
         assert transformed_job["salary_min"] == 45000
         assert transformed_job["remote"] is True
+
+def test_transform_jobs() -> None:
+    raw_jobs = [
+        {
+            "job_id": "1",
+            "title": "Data Engineer",
+            "company": "DataWorks",
+            "location": "Madrid",
+            "technology": "POSTGRES",
+            "salary_min": "32000",
+            "salary_max": "42000",
+            "remote": "false",
+        }
+    ]
+
+    transformed_jobs = transform_jobs(raw_jobs)
+
+    assert len(transformed_jobs) == 1
+    assert transformed_jobs[0]["technology"] == "PostgreSQL"
+    assert transformed_jobs[0]["salary_min"] == 32000
+    assert transformed_jobs[0]["remote"] is False

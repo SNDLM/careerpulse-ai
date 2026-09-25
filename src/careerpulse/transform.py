@@ -48,3 +48,9 @@ def transform_job_record(
         "salary_max": int(record["salary_max"]),
         "remote": record["remote"].strip().lower() == "true",
     }    
+
+def transform_jobs(
+    records: list[dict[str, str]],
+) -> list[dict[str, str | int | bool]]:
+    """Transform a list of raw job records."""
+    return [transform_job_record(record) for record in records]
