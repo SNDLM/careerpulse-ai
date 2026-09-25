@@ -1,0 +1,5 @@
+job_id,title,company,location,technology,salary_min,salary_max,remote
+1,Data Engineer,DataWorks,Madrid,POSTGRES,32000,42000,false
+2,Cloud Engineer,CloudTech,Madrid,  aws  ,45000,60000,true
+3,Frontend Developer,WebLabs,Madrid,js,30000,40000,true
+4,DevOps Engineer,InfraWorks,Madrid,k8s,50000,65000,false
