@@ -30,3 +30,6 @@ data/processed/*
 *.egg-info/
 build/
 dist/
+
+
+.env
