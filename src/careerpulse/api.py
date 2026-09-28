@@ -18,10 +18,17 @@ def health_check() -> dict[str, str]:
 
 
 @app.get("/jobs", response_model=list[Job])
-def list_jobs() -> list[dict[str, object]]:
-    """Return all job records."""
-    return get_all_jobs()
-
+def list_jobs(
+    technology: str | None = None,
+    location: str | None = None,
+    remote: bool | None = None,
+) -> list[dict[str, object]]:
+    """Return job records, optionally filtered."""
+    return get_all_jobs(
+        technology=technology,
+        location=location,
+        remote=remote,
+    )
 
 @app.get("/jobs/{job_id}", response_model=Job)
 def get_job(job_id: int) -> dict[str, object]:

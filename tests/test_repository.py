@@ -64,3 +64,30 @@ def test_get_job_by_id() -> None:
 
     cursor.execute.assert_called_once()
     assert job == expected_job
+
+def test_get_all_jobs_with_filters() -> None:
+    connection_manager = MagicMock()
+    connection = MagicMock()
+    cursor = MagicMock()
+
+    connection_manager.__enter__.return_value = connection
+    connection.cursor.return_value.__enter__.return_value = cursor
+    cursor.fetchall.return_value = []
+
+    with patch(
+        "careerpulse.repository.get_connection",
+        return_value=connection_manager,
+    ):
+        jobs = get_all_jobs(
+            technology="AWS",
+            location="Madrid",
+            remote=True,
+        )
+
+    executed_query, parameters = cursor.execute.call_args.args
+
+    assert "LOWER(technology) = LOWER(%s)" in executed_query
+    assert "LOWER(location) = LOWER(%s)" in executed_query
+    assert "remote = %s" in executed_query
+    assert parameters == ("AWS", "Madrid", True)
+    assert jobs == []

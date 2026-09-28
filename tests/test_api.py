@@ -69,3 +69,38 @@ def test_get_job_by_id_not_found() -> None:
 
     assert response.status_code == 404
     assert response.json() == {"detail": "Job not found"}
+
+def test_list_jobs_with_filters() -> None:
+    expected_jobs = [
+        {
+            "job_id": 2,
+            "title": "Cloud Engineer",
+            "company": "CloudTech",
+            "location": "Madrid",
+            "technology": "AWS",
+            "salary_min": 45000,
+            "salary_max": 60000,
+            "remote": True,
+        }
+    ]
+
+    with patch(
+        "careerpulse.api.get_all_jobs",
+        return_value=expected_jobs,
+    ) as mocked_get_all_jobs:
+        response = client.get(
+            "/jobs",
+            params={
+                "technology": "AWS",
+                "location": "Madrid",
+                "remote": "true",
+            },
+        )
+
+    mocked_get_all_jobs.assert_called_once_with(
+        technology="AWS",
+        location="Madrid",
+        remote=True,
+    )
+    assert response.status_code == 200
+    assert response.json() == expected_jobs
