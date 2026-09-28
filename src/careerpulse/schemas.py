@@ -14,3 +14,11 @@ class Job(BaseModel):
     salary_min: int | None = None
     salary_max: int | None = None
     remote: bool
+
+class JobSummary(BaseModel):
+    """Aggregate job-market statistics."""
+
+    total_jobs: int
+    average_salary_min: int | None = None
+    average_salary_max: int | None = None
+    remote_jobs: int

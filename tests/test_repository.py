@@ -2,7 +2,7 @@
 
 from unittest.mock import MagicMock, patch
 
-from careerpulse.repository import get_all_jobs, get_job_by_id
+from careerpulse.repository import get_all_jobs, get_job_by_id, get_job_summary
 
 
 def test_get_all_jobs() -> None:
@@ -91,3 +91,28 @@ def test_get_all_jobs_with_filters() -> None:
     assert "remote = %s" in executed_query
     assert parameters == ("AWS", "Madrid", True)
     assert jobs == []
+
+def test_get_job_summary() -> None:
+    expected_summary = {
+        "total_jobs": 4,
+        "average_salary_min": 39250,
+        "average_salary_max": 51750,
+        "remote_jobs": 2,
+    }
+
+    connection_manager = MagicMock()
+    connection = MagicMock()
+    cursor = MagicMock()
+
+    connection_manager.__enter__.return_value = connection
+    connection.cursor.return_value.__enter__.return_value = cursor
+    cursor.fetchone.return_value = expected_summary
+
+    with patch(
+        "careerpulse.repository.get_connection",
+        return_value=connection_manager,
+    ):
+        summary = get_job_summary()
+
+    cursor.execute.assert_called_once()
+    assert summary == expected_summary

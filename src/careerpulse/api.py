@@ -2,8 +2,8 @@
 
 from fastapi import FastAPI, HTTPException
 
-from careerpulse.repository import get_all_jobs, get_job_by_id
-from careerpulse.schemas import Job
+from careerpulse.repository import get_all_jobs, get_job_by_id, get_job_summary
+from careerpulse.schemas import Job, JobSummary
 
 app = FastAPI(
     title="CareerPulse AI API",
@@ -16,6 +16,12 @@ def health_check() -> dict[str, str]:
     """Return the API health status."""
     return {"status": "ok"}
 
+
+@app.get("/stats/summary", response_model=JobSummary)
+def job_summary() -> dict[str, object]:
+    """Return aggregate job-market statistics."""
+    return get_job_summary()
+    
 
 @app.get("/jobs", response_model=list[Job])
 def list_jobs(

@@ -51,7 +51,7 @@ def get_all_jobs(
         cursor.execute(query, tuple(parameters))
         return cursor.fetchall()
 
-        
+
     """Return all job records from PostgreSQL."""
     query = """
         SELECT
@@ -96,3 +96,31 @@ def get_job_by_id(job_id: int) -> dict[str, object] | None:
     ):
         cursor.execute(query, (job_id,))
         return cursor.fetchone()
+    
+def get_job_summary() -> dict[str, object]:
+    """Return aggregate statistics for all jobs."""
+    query = """
+        SELECT
+            COUNT(*) AS total_jobs,
+            ROUND(AVG(salary_min))::INTEGER AS average_salary_min,
+            ROUND(AVG(salary_max))::INTEGER AS average_salary_max,
+            COUNT(*) FILTER (WHERE remote = TRUE) AS remote_jobs
+        FROM jobs
+    """
+
+    with (
+        get_connection() as connection,
+        connection.cursor(row_factory=dict_row) as cursor,
+    ):
+        cursor.execute(query)
+        summary = cursor.fetchone()
+
+    if summary is None:
+        return {
+            "total_jobs": 0,
+            "average_salary_min": None,
+            "average_salary_max": None,
+            "remote_jobs": 0,
+        }
+
+    return summary

@@ -104,3 +104,20 @@ def test_list_jobs_with_filters() -> None:
     )
     assert response.status_code == 200
     assert response.json() == expected_jobs
+
+def test_job_summary() -> None:
+    expected_summary = {
+        "total_jobs": 4,
+        "average_salary_min": 39250,
+        "average_salary_max": 51750,
+        "remote_jobs": 2,
+    }
+
+    with patch(
+        "careerpulse.api.get_job_summary",
+        return_value=expected_summary,
+    ):
+        response = client.get("/stats/summary")
+
+    assert response.status_code == 200
+    assert response.json() == expected_summary
