@@ -1,7 +1,12 @@
 import csv
 from pathlib import Path
+from unittest.mock import patch
 
-from careerpulse.pipeline import extract_and_transform, run_etl
+from careerpulse.pipeline import (
+    extract_and_transform,
+    run_etl,
+    run_etl_to_postgres,
+)
 
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "sample_jobs.csv"
 
@@ -29,3 +34,17 @@ def test_run_etl(tmp_path: Path) -> None:
     assert processed_jobs[0]["technology"] == "PostgreSQL"
     assert processed_jobs[1]["technology"] == "AWS"
     assert processed_jobs[3]["location"] == "Madrid"
+
+def test_run_etl_to_postgres() -> None:
+    with patch(
+        "careerpulse.pipeline.save_jobs_to_postgres"
+    ) as mock_save:
+        run_etl_to_postgres(FIXTURE_PATH)
+
+    mock_save.assert_called_once()
+
+    jobs = mock_save.call_args.args[0]
+
+    assert len(jobs) == 4
+    assert all(job["location"] == "Madrid" for job in jobs)
+    assert jobs[0]["technology"] == "PostgreSQL"
