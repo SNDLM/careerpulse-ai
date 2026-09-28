@@ -12,12 +12,15 @@ authors = [
     { name = "Sergio Nieto de la Morena" }
 ]
 dependencies = [
+    "fastapi>=0.115,<1",
     "psycopg[binary]>=3.3,<4",
     "python-dotenv>=1.2,<2",
+    "uvicorn[standard]>=0.30,<1",
 ]
 
 [project.optional-dependencies]
 dev = [
+    "httpx>=0.27,<1",
     "pytest",
     "pytest-cov",
     "ruff"
