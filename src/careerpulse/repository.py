@@ -27,3 +27,26 @@ def get_all_jobs() -> list[dict[str, object]]:
     ):
         cursor.execute(query)
         return cursor.fetchall()
+
+def get_job_by_id(job_id: int) -> dict[str, object] | None:
+    """Return one job by its identifier."""
+    query = """
+        SELECT
+            job_id,
+            title,
+            company,
+            location,
+            technology,
+            salary_min,
+            salary_max,
+            remote
+        FROM jobs
+        WHERE job_id = %s
+    """
+
+    with (
+        get_connection() as connection,
+        connection.cursor(row_factory=dict_row) as cursor,
+    ):
+        cursor.execute(query, (job_id,))
+        return cursor.fetchone()
