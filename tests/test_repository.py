@@ -16,6 +16,8 @@ def test_get_all_jobs() -> None:
             "salary_min": 32000,
             "salary_max": 42000,
             "remote": False,
+            "source": "csv",
+            "source_job_id": "1",
         }
     ]
 
@@ -36,6 +38,7 @@ def test_get_all_jobs() -> None:
     cursor.execute.assert_called_once()
     assert jobs == expected_jobs
 
+
 def test_get_job_by_id() -> None:
     expected_job = {
         "job_id": 1,
@@ -46,6 +49,8 @@ def test_get_job_by_id() -> None:
         "salary_min": 32000,
         "salary_max": 42000,
         "remote": False,
+        "source": "csv",
+        "source_job_id": "1",
     }
 
     connection_manager = MagicMock()
@@ -65,6 +70,7 @@ def test_get_job_by_id() -> None:
     cursor.execute.assert_called_once()
     assert job == expected_job
 
+
 def test_get_all_jobs_with_filters() -> None:
     connection_manager = MagicMock()
     connection = MagicMock()
@@ -82,6 +88,9 @@ def test_get_all_jobs_with_filters() -> None:
             technology="AWS",
             location="Madrid",
             remote=True,
+            source="adzuna",
+            limit=5,
+            offset=10,
         )
 
     executed_query, parameters = cursor.execute.call_args.args
@@ -89,8 +98,11 @@ def test_get_all_jobs_with_filters() -> None:
     assert "LOWER(technology) = LOWER(%s)" in executed_query
     assert "LOWER(location) = LOWER(%s)" in executed_query
     assert "remote = %s" in executed_query
-    assert parameters == ("AWS", "Madrid", True)
+    assert "LOWER(source) = LOWER(%s)" in executed_query
+    assert "LIMIT %s OFFSET %s" in executed_query
+    assert parameters == ("AWS", "Madrid", True, "adzuna", 5, 10)
     assert jobs == []
+
 
 def test_get_job_summary() -> None:
     expected_summary = {

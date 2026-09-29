@@ -9,8 +9,11 @@ def get_all_jobs(
     technology: str | None = None,
     location: str | None = None,
     remote: bool | None = None,
+    source: str | None = None,
+    limit: int = 20,
+    offset: int = 0,
 ) -> list[dict[str, object]]:
-    """Return job records, optionally filtered."""
+    """Return filtered and paginated job records."""
     query = """
         SELECT
             job_id,
@@ -41,10 +44,15 @@ def get_all_jobs(
         conditions.append("remote = %s")
         parameters.append(remote)
 
+    if source is not None:
+        conditions.append("LOWER(source) = LOWER(%s)")
+        parameters.append(source)
+
     if conditions:
         query += " WHERE " + " AND ".join(conditions)
 
-    query += " ORDER BY job_id"
+    query += " ORDER BY job_id LIMIT %s OFFSET %s"
+    parameters.extend([limit, offset])
 
     with (
         get_connection() as connection,

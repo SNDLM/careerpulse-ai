@@ -110,7 +110,11 @@ def test_list_jobs_with_filters() -> None:
         technology="AWS",
         location="Madrid",
         remote=True,
+        source=None,
+        limit=20,
+        offset=0,
     )
+
     assert response.status_code == 200
     assert response.json() == expected_jobs
 
