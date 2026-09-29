@@ -96,4 +96,3 @@ def test_run_adzuna_etl() -> None:
     assert saved_jobs[0]["technology"] == "Python"
     assert saved_jobs[0]["source"] == "adzuna"
     assert saved_jobs[0]["source_job_id"] == "5875138129"
-
