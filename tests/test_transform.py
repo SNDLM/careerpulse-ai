@@ -1,5 +1,6 @@
 from careerpulse.transform import (
     normalize_technology,
+    transform_adzuna_job,
     transform_job_record,
     transform_jobs,
 )
@@ -59,3 +60,28 @@ def test_transform_jobs() -> None:
     assert transformed_jobs[0]["technology"] == "PostgreSQL"
     assert transformed_jobs[0]["salary_min"] == 32000
     assert transformed_jobs[0]["remote"] is False
+
+def test_transform_adzuna_job() -> None:
+    raw_job = {
+        "id": "5875138129",
+        "title": "Python Data Engineer",
+        "description": "Remote role building data pipelines.",
+        "company": {"display_name": "Nexthink"},
+        "location": {"display_name": "Madrid"},
+        "salary_min": 42000.5,
+        "salary_max": None,
+    }
+
+    transformed_job = transform_adzuna_job(raw_job)
+
+    assert transformed_job == {
+        "title": "Python Data Engineer",
+        "company": "Nexthink",
+        "location": "Madrid",
+        "technology": "Python",
+        "salary_min": 42000,
+        "salary_max": None,
+        "remote": True,
+        "source": "adzuna",
+        "source_job_id": "5875138129",
+    }
