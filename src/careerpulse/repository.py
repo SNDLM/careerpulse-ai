@@ -20,7 +20,9 @@ def get_all_jobs(
             technology,
             salary_min,
             salary_max,
-            remote
+            remote,
+            source,
+            source_job_id
         FROM jobs
     """
 
@@ -52,28 +54,6 @@ def get_all_jobs(
         return cursor.fetchall()
 
 
-    """Return all job records from PostgreSQL."""
-    query = """
-        SELECT
-            job_id,
-            title,
-            company,
-            location,
-            technology,
-            salary_min,
-            salary_max,
-            remote
-        FROM jobs
-        ORDER BY job_id
-    """
-
-    with (
-        get_connection() as connection,
-        connection.cursor(row_factory=dict_row) as cursor,
-    ):
-        cursor.execute(query)
-        return cursor.fetchall()
-
 def get_job_by_id(job_id: int) -> dict[str, object] | None:
     """Return one job by its identifier."""
     query = """
@@ -85,7 +65,9 @@ def get_job_by_id(job_id: int) -> dict[str, object] | None:
             technology,
             salary_min,
             salary_max,
-            remote
+            remote,
+            source,
+            source_job_id
         FROM jobs
         WHERE job_id = %s
     """
@@ -96,7 +78,8 @@ def get_job_by_id(job_id: int) -> dict[str, object] | None:
     ):
         cursor.execute(query, (job_id,))
         return cursor.fetchone()
-    
+
+
 def get_job_summary() -> dict[str, object]:
     """Return aggregate statistics for all jobs."""
     query = """

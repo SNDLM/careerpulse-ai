@@ -14,6 +14,9 @@ class Job(BaseModel):
     salary_min: int | None = None
     salary_max: int | None = None
     remote: bool
+    source: str
+    source_job_id: str
+
 
 class JobSummary(BaseModel):
     """Aggregate job-market statistics."""

@@ -15,6 +15,7 @@ def test_health_check() -> None:
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
 
+
 def test_list_jobs() -> None:
     expected_jobs = [
         {
@@ -26,6 +27,8 @@ def test_list_jobs() -> None:
             "salary_min": 32000,
             "salary_max": 42000,
             "remote": False,
+            "source": "csv",
+            "source_job_id": "1",
         }
     ]
 
@@ -38,6 +41,7 @@ def test_list_jobs() -> None:
     assert response.status_code == 200
     assert response.json() == expected_jobs
 
+
 def test_get_job_by_id() -> None:
     expected_job = {
         "job_id": 1,
@@ -48,6 +52,8 @@ def test_get_job_by_id() -> None:
         "salary_min": 32000,
         "salary_max": 42000,
         "remote": False,
+        "source": "csv",
+        "source_job_id": "1",
     }
 
     with patch(
@@ -70,6 +76,7 @@ def test_get_job_by_id_not_found() -> None:
     assert response.status_code == 404
     assert response.json() == {"detail": "Job not found"}
 
+
 def test_list_jobs_with_filters() -> None:
     expected_jobs = [
         {
@@ -81,6 +88,8 @@ def test_list_jobs_with_filters() -> None:
             "salary_min": 45000,
             "salary_max": 60000,
             "remote": True,
+            "source": "csv",
+            "source_job_id": "2",
         }
     ]
 
@@ -104,6 +113,7 @@ def test_list_jobs_with_filters() -> None:
     )
     assert response.status_code == 200
     assert response.json() == expected_jobs
+
 
 def test_job_summary() -> None:
     expected_summary = {
