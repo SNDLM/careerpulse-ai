@@ -16,9 +16,10 @@ dependencies = [
     "psycopg[binary]>=3.3,<4",
     "python-dotenv>=1.2,<2",
     "uvicorn[standard]>=0.30,<1",
-    "psycopg[binary]>=3.3,<4",
-    "python-dotenv>=1.2,<2",
     "requests>=2.34,<3",
+    "pandas>=2.2,<4",
+    "streamlit>=1.48,<2",
+    
 ]
 
 [project.optional-dependencies]
@@ -27,9 +28,9 @@ dev = [
     "pytest",
     "pytest-cov",
     "ruff",
-    "pandas",
     "matplotlib",
     "ipykernel",
+    
 ]
 
 [tool.setuptools.packages.find]
