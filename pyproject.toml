@@ -23,10 +23,13 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "httpx2",
+    "httpx>=0.28,<1",
     "pytest",
     "pytest-cov",
-    "ruff"
+    "ruff",
+    "pandas",
+    "matplotlib",
+    "ipykernel",
 ]
 
 [tool.setuptools.packages.find]
