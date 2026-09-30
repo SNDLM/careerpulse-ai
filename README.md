@@ -143,7 +143,7 @@ GitHub Actions automatically runs both checks on every push and pull request.
 - [x] Filtering and summary statistics
 - [x] Automated testing
 - [x] Continuous integration
-- [ ] Real job-source ingestion
+- [x] Real job-source ingestion
 - [ ] Exploratory analysis notebooks
 - [ ] Interactive dashboard
 - [ ] Docker containerization
@@ -155,3 +155,29 @@ GitHub Actions automatically runs both checks on every push and pull request.
 **Sergio Nieto de la Morena**
 
 GitHub: [SNDLM](https://github.com/SNDLM)
+
+## REST API
+
+CareerPulse provides a REST API to explore job listings stored in PostgreSQL. Interactive documentation is available at `/docs` while the API is running.
+
+| Endpoint | Description |
+| --- | --- |
+| `GET /health` | Check that the API is running. |
+| `GET /jobs` | List job postings. |
+| `GET /jobs/{job_id}` | Get a job by its internal ID. |
+| `GET /stats/summary` | Get job counts and salary statistics. |
+
+### Filtering and pagination
+
+`GET /jobs` accepts these optional parameters:
+
+| Parameter | Example | Description |
+| --- | --- | --- |
+| `technology` | `Python` | Filter by technology. |
+| `location` | `Madrid` | Filter by location. |
+| `remote` | `true` | Show remote or non-remote jobs. |
+| `source` | `adzuna` | Filter by data source (`adzuna` or `csv`). |
+| `limit` | `20` | Maximum results per page, from 1 to 100. |
+| `offset` | `0` | Number of results to skip. |
+
+For example, `/jobs?location=Madrid&source=adzuna&limit=2&offset=1` returns up to two Adzuna jobs in Madrid, skipping the first matching result.
