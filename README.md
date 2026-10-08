@@ -181,3 +181,18 @@ CareerPulse provides a REST API to explore job listings stored in PostgreSQL. In
 | `offset` | `0` | Number of results to skip. |
 
 For example, `/jobs?location=Madrid&source=adzuna&limit=2&offset=1` returns up to two Adzuna jobs in Madrid, skipping the first matching result.
+
+
+## Madrid dashboard
+
+The Streamlit dashboard displays job offers stored in PostgreSQL whose location contains Madrid. It shows the offers, lets you filter by data source, and charts the number of offers by technology.
+
+With PostgreSQL running and your local `.env` configured, start it from the project directory:
+
+```powershell
+.\.venv\Scripts\python.exe -m streamlit run dashboard.py
+```
+
+Open the local address shown in the terminal, usually `http://localhost:8501`.
+
+The current dataset is a small demonstration sample. `Unknown` means that no technology was detected in the offer's title or description.
