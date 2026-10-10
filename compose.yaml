@@ -1,0 +1,53 @@
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: careerpulse_app
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Falta DB_PASSWORD en .env}
+      POSTGRES_DB: careerpulse
+    volumes:
+      - pg_data:/var/lib/postgresql
+      - ./sql/schema.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
+      - ./migrations/001_add_job_source.sql:/docker-entrypoint-initdb.d/002_add_job_source.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U careerpulse_app -d careerpulse"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    image: careerpulse-ai:local
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: careerpulse
+      DB_USER: careerpulse_app
+      DB_PASSWORD: ${DB_PASSWORD:?Falta DB_PASSWORD en .env}
+      ADZUNA_APP_ID: ${ADZUNA_APP_ID:?Falta ADZUNA_APP_ID en .env}
+      ADZUNA_APP_KEY: ${ADZUNA_APP_KEY:?Falta ADZUNA_APP_KEY en .env}
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  dashboard:
+    image: careerpulse-ai:local
+    command: >
+      python -m streamlit run dashboard.py
+      --server.address=0.0.0.0
+      --server.port=8501
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: careerpulse
+      DB_USER: careerpulse_app
+      DB_PASSWORD: ${DB_PASSWORD:?Falta DB_PASSWORD en .env}
+    ports:
+      - "127.0.0.1:8501:8501"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pg_data:

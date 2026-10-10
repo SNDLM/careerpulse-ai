@@ -1,3 +1,5 @@
+"""Tests for saving job records."""
+
 import csv
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -70,7 +72,6 @@ def test_save_jobs_to_postgres() -> None:
     assert "ON CONFLICT (source, source_job_id)" in query
     assert values == [
         (
-            1,
             "Data Engineer",
             "DataWorks",
             "Madrid",
