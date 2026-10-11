@@ -2,7 +2,12 @@
 
 from unittest.mock import MagicMock, patch
 
-from careerpulse.repository import get_all_jobs, get_job_by_id, get_job_summary
+from careerpulse.repository import (
+    get_all_jobs,
+    get_job_by_id,
+    get_job_summary,
+    get_madrid_jobs_for_search,
+)
 
 
 def test_get_all_jobs() -> None:
@@ -128,3 +133,35 @@ def test_get_job_summary() -> None:
 
     cursor.execute.assert_called_once()
     assert summary == expected_summary
+
+
+def test_get_madrid_jobs_for_search() -> None:
+    expected_jobs = [
+        {
+            "job_id": 5,
+            "title": "Data Engineer",
+            "location": "Madrid",
+            "description": "Building data pipelines.",
+        }
+    ]
+
+    connection_manager = MagicMock()
+    connection = MagicMock()
+    cursor = MagicMock()
+
+    connection_manager.__enter__.return_value = connection
+    connection.cursor.return_value.__enter__.return_value = cursor
+    cursor.fetchall.return_value = expected_jobs
+
+    with patch(
+        "careerpulse.repository.get_connection",
+        return_value=connection_manager,
+    ):
+        jobs = get_madrid_jobs_for_search(limit=50)
+
+    query, parameters = cursor.execute.call_args.args
+
+    assert "description" in query
+    assert "location ILIKE %s" in query
+    assert parameters == ("%Madrid%", 50)
+    assert jobs == expected_jobs

@@ -24,6 +24,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
+    
     "httpx>=0.28,<1",
     "pytest",
     "pytest-cov",
@@ -31,6 +32,11 @@ dev = [
     "matplotlib",
     "ipykernel",
     
+]
+
+ai = [
+    "sentence-transformers",
+    "google-genai",
 ]
 
 [tool.setuptools.packages.find]

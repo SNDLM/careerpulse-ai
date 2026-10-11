@@ -7,7 +7,8 @@ WORKDIR /app
 
 COPY pyproject.toml README.md ./
 COPY src ./src
-RUN python -m pip install --no-cache-dir .
+RUN python -m pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+RUN python -m pip install --no-cache-dir ".[ai]"
 
 COPY dashboard.py ./
 COPY tests/fixtures/sample_jobs.csv ./tests/fixtures/sample_jobs.csv

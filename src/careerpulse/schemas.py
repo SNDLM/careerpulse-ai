@@ -18,6 +18,13 @@ class Job(BaseModel):
     source_job_id: str
 
 
+class JobMatch(Job):
+    """Job returned by semantic search."""
+
+    description: str
+    similarity: float
+
+
 class JobSummary(BaseModel):
     """Aggregate job-market statistics."""
 

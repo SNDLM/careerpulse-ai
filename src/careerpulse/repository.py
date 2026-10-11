@@ -71,6 +71,7 @@ def get_job_by_id(job_id: int) -> dict[str, object] | None:
             company,
             location,
             technology,
+            description,
             salary_min,
             salary_max,
             remote,
@@ -115,3 +116,34 @@ def get_job_summary() -> dict[str, object]:
         }
 
     return summary
+
+def get_madrid_jobs_for_search(
+    limit: int = 500,
+) -> list[dict[str, object]]:
+    """Return recent Madrid jobs with descriptions for semantic search."""
+    query = """
+        SELECT
+            job_id,
+            title,
+            company,
+            location,
+            technology,
+            description,
+            salary_min,
+            salary_max,
+            remote,
+            source,
+            source_job_id
+        FROM jobs
+        WHERE location ILIKE %s
+          AND NULLIF(BTRIM(description), '') IS NOT NULL
+        ORDER BY job_id DESC
+        LIMIT %s
+    """
+
+    with (
+        get_connection() as connection,
+        connection.cursor(row_factory=dict_row) as cursor,
+    ):
+        cursor.execute(query, ("%Madrid%", limit))
+        return cursor.fetchall()

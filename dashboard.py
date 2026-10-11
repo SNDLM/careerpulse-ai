@@ -142,6 +142,8 @@ st.divider()
 st.subheader("Buscar ofertas con IA")
 st.caption("Busca por significado, aunque la oferta use otras palabras.")
 
+api_url = os.getenv("API_BASE_URL", "http://127.0.0.1:8000")
+
 with st.form("semantic_search"):
     search_query = st.text_input(
         "¿Qué tipo de trabajo buscas?",
@@ -154,8 +156,6 @@ if submitted:
     if not search_query.strip():
         st.warning("Escribe qué tipo de trabajo buscas.")
     else:
-        api_url = os.getenv("API_BASE_URL", "http://127.0.0.1:8000")
-
         try:
             response = requests.get(
                 f"{api_url}/jobs/semantic-search",
@@ -164,6 +164,8 @@ if submitted:
             )
             response.raise_for_status()
             st.session_state["search_results"] = response.json()
+            st.session_state["last_search_query"] = search_query.strip()
+            st.session_state["explanations"] = {}
         except requests.RequestException:
             st.error("No se pudo consultar la API. Comprueba que está arrancada.")
 
@@ -181,3 +183,30 @@ if "search_results" in st.session_state:
                 st.write(f"**Tecnología:** {job['technology']}")
                 st.write(f"**Similitud:** {job['similarity']:.3f}")
                 st.write(job["description"])
+
+                if st.button(
+                    "Explicar con IA",
+                    key=f"explain_{job['job_id']}",
+                ):
+                    with st.spinner("Generando explicación..."):
+                        try:
+                            response = requests.post(
+                                f"{api_url}/jobs/{job['job_id']}/explanation",
+                                params={"q": st.session_state["last_search_query"]},
+                                timeout=60,
+                            )
+                            response.raise_for_status()
+                            st.session_state["explanations"][job["job_id"]] = (
+                                response.json()["explanation"]
+                            )
+                        except (requests.RequestException, KeyError, ValueError):
+                            st.error(
+                                "No se pudo generar la explicación. "
+                                "Comprueba que la API está disponible."
+                            )
+
+                explanation = st.session_state.get("explanations", {}).get(
+                    job["job_id"]
+                )
+                if explanation:
+                    st.write(f"**Explicación de IA:** {explanation}")

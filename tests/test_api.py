@@ -135,3 +135,70 @@ def test_job_summary() -> None:
 
     assert response.status_code == 200
     assert response.json() == expected_summary
+
+
+def test_semantic_job_search() -> None:
+    job = {
+        "job_id": 5,
+        "title": "Data Engineer",
+        "company": "DataWorks",
+        "location": "Madrid",
+        "technology": "Python",
+        "description": "Building data pipelines with Python.",
+        "salary_min": 42000,
+        "salary_max": None,
+        "remote": True,
+        "source": "adzuna",
+        "source_job_id": "12345",
+    }
+    matches = [{**job, "similarity": 0.82}]
+
+    with (
+        patch(
+            "careerpulse.api.get_madrid_jobs_for_search",
+            return_value=[job],
+        ) as mocked_jobs,
+        patch(
+            "careerpulse.api.search_jobs",
+            return_value=matches,
+        ) as mocked_search,
+    ):
+        response = client.get(
+            "/jobs/semantic-search",
+            params={"q": "Python y datos", "limit": 3},
+        )
+
+    assert response.status_code == 200
+    assert response.json() == matches
+    mocked_jobs.assert_called_once_with()
+    mocked_search.assert_called_once_with(
+        "Python y datos",
+        [job],
+        limit=3,
+    )
+
+def test_explain_job_result() -> None:
+    job = {
+        "job_id": 5,
+        "title": "Data Engineer",
+        "description": "Trabajo con Python y pipelines de datos.",
+    }
+
+    with (
+        patch("careerpulse.api.get_job_by_id", return_value=job),
+        patch(
+            "careerpulse.api.explain_job",
+            return_value="La oferta menciona Python y pipelines de datos.",
+        ) as mocked_explain,
+    ):
+        response = client.post(
+            "/jobs/5/explanation",
+            params={"q": "Python data engineer"},
+        )
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "job_id": 5,
+        "explanation": "La oferta menciona Python y pipelines de datos.",
+    }
+    mocked_explain.assert_called_once_with("Python data engineer", job)   

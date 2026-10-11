@@ -26,6 +26,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:?Falta DB_PASSWORD en .env}
       ADZUNA_APP_ID: ${ADZUNA_APP_ID:?Falta ADZUNA_APP_ID en .env}
       ADZUNA_APP_KEY: ${ADZUNA_APP_KEY:?Falta ADZUNA_APP_KEY en .env}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:?Falta GEMINI_API_KEY en .env}
     ports:
       - "127.0.0.1:8000:8000"
     depends_on:
@@ -39,7 +40,7 @@ services:
       --server.address=0.0.0.0
       --server.port=8501
     environment:
-      PI_BASE_URL: http://api:8000
+      API_BASE_URL: http://api:8000
       DB_HOST: db
       DB_PORT: "5432"
       DB_NAME: careerpulse
