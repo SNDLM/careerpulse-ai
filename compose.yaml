@@ -49,5 +49,21 @@ services:
       db:
         condition: service_healthy
 
+  ingestion:
+    image: careerpulse-ai:local
+    command: ["python", "-m", "careerpulse.scheduler"]
+    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: careerpulse
+      DB_USER: careerpulse_app
+      DB_PASSWORD: ${DB_PASSWORD:?Falta DB_PASSWORD en .env}
+      ADZUNA_APP_ID: ${ADZUNA_APP_ID:?Falta ADZUNA_APP_ID en .env}
+      ADZUNA_APP_KEY: ${ADZUNA_APP_KEY:?Falta ADZUNA_APP_KEY en .env}
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   pg_data:
