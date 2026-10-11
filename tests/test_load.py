@@ -71,7 +71,8 @@ def test_save_jobs_to_postgres() -> None:
     assert "INSERT INTO jobs" in query
     assert "ON CONFLICT (source, source_job_id)" in query
     assert values == [
-        (
+        ( 
+              1,
             "Data Engineer",
             "DataWorks",
             "Madrid",
@@ -89,6 +90,7 @@ def test_save_adzuna_jobs_to_postgres() -> None:
     jobs = [
         {
             "title": "Python Data Engineer",
+            "description": "Remote role using Python.",        
             "company": "Nexthink",
             "location": "Madrid",
             "technology": "Python",
@@ -116,11 +118,13 @@ def test_save_adzuna_jobs_to_postgres() -> None:
     cursor.executemany.assert_called_once()
     query, values = cursor.executemany.call_args.args
 
+    assert query.count("%s") == len(values[0])
     assert "INSERT INTO jobs" in query
     assert "ON CONFLICT (source, source_job_id)" in query
     assert values == [
         (
             "Python Data Engineer",
+            "Remote role using Python.",
             "Nexthink",
             "Madrid",
             "Python",

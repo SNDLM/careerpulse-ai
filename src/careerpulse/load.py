@@ -18,6 +18,7 @@ JOB_FIELDS = [
 
 ADZUNA_JOB_FIELDS = [
     "title",
+    "description",
     "company",
     "location",
     "technology",
@@ -52,6 +53,7 @@ def save_jobs_to_postgres(
 
     query = """
         INSERT INTO jobs (
+            job_id,
             title,
             company,
             location,
@@ -62,7 +64,7 @@ def save_jobs_to_postgres(
             source,
             source_job_id
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ON CONFLICT (source, source_job_id) DO UPDATE SET
             title = EXCLUDED.title,
             company = EXCLUDED.company,
@@ -75,7 +77,7 @@ def save_jobs_to_postgres(
 
     values = [
         (
-            *(job[field] for field in JOB_FIELDS[1:]),
+            *(job[field] for field in JOB_FIELDS),
             "csv",
             str(job["job_id"]),
         )
@@ -99,6 +101,7 @@ def save_adzuna_jobs_to_postgres(
     query = """
         INSERT INTO jobs (
             title,
+            description,
             company,
             location,
             technology,
@@ -108,9 +111,10 @@ def save_adzuna_jobs_to_postgres(
             source,
             source_job_id
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ON CONFLICT (source, source_job_id) DO UPDATE SET
             title = EXCLUDED.title,
+            description = EXCLUDED.description,
             company = EXCLUDED.company,
             location = EXCLUDED.location,
             technology = EXCLUDED.technology,

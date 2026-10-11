@@ -76,6 +76,7 @@ def test_transform_adzuna_job() -> None:
 
     assert transformed_job == {
         "title": "Python Data Engineer",
+        "description": "Remote role building data pipelines.",
         "company": "Nexthink",
         "location": "Madrid",
         "technology": "Python",

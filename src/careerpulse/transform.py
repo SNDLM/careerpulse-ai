@@ -114,6 +114,7 @@ def transform_adzuna_job(
 
     return {
         "title": title,
+        "description": description,
         "company": company,
         "location": location,
         "technology": detect_technology(f"{title} {description}"),
