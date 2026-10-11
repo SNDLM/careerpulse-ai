@@ -2,197 +2,113 @@
 
 [![CI](https://github.com/SNDLM/careerpulse-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/SNDLM/careerpulse-ai/actions/workflows/ci.yml)
 
-Data engineering and analytics project for processing and exploring technology job-market data in Madrid.
+I built CareerPulse to explore how a small data engineering project works from end to end: collect job offers, clean them, store them, and make the results accessible through an API and a dashboard.
 
-CareerPulse AI implements an ETL pipeline, PostgreSQL persistence, a tested REST API and automated quality checks. Additional analytics, dashboards, cloud deployment and AI features are planned.
+The project focuses on technology jobs in Madrid. It combines offers from the Adzuna API with a small CSV fixture used for development and testing.
 
-## Current features
+## What it does
 
-- CSV job-data extraction.
-- Data cleaning and technology-name normalization.
-- Processed CSV generation.
-- PostgreSQL storage with UPSERT operations.
-- Environment-based database configuration.
-- REST API built with FastAPI.
-- Job filtering by technology, location and remote status.
-- Aggregated salary and remote-work statistics.
-- Automated tests with pytest.
-- Code-quality checks with Ruff.
-- Continuous integration with GitHub Actions.
+- Collects job offers from Adzuna and reads jobs from a CSV file.
+- Cleans job records and standardizes known technology names.
+- Stores jobs in PostgreSQL without duplicating offers from the same source.
+- Refreshes Adzuna offers automatically while the ingestion container is running.
+- Provides a FastAPI endpoint to search and filter jobs.
+- Displays Madrid offers in a Streamlit dashboard.
+- Runs tests and code checks through GitHub Actions.
 
-## Architecture
+## How it fits together
 
 ```mermaid
-flowchart LR
-    A["CSV data"] --> B["Extract"]
-    B --> C["Transform"]
-    C --> D["Load"]
-    D --> E[("PostgreSQL")]
-    E --> F["FastAPI"]
-    F --> G["API clients"]
+flowchart TD
+    A["Adzuna API"] --> C["Extract and transform"]
+    B["CSV fixture"] --> C
+    C --> D[("PostgreSQL")]
+    D --> E["FastAPI"]
+    D --> F["Streamlit dashboard"]
+    G["Scheduled ingestion"] --> A
 ```
 
-## Technology stack
+The ingestion process retrieves Adzuna offers when it starts and repeats the request approximately every 24 hours while Docker is running.
 
-- Python 3.12
-- FastAPI
-- PostgreSQL
-- Psycopg 3
-- Pydantic
-- pytest
-- Ruff
-- GitHub Actions
+## Dashboard
 
-## Project structure
+The dashboard shows offers whose location contains Madrid. You can filter by data source, detected technology and remote status, or search by job title and company.
 
-- `.github/workflows`: continuous-integration configuration.
-- `data/raw`: original datasets.
-- `data/processed`: transformed datasets.
-- `docs`: project documentation.
-- `notebooks`: exploratory data analysis.
-- `src/careerpulse`: application source code.
-- `tests`: automated tests and sample fixtures.
+It also shows counts by job profile and by identified technology. These are **counts from the offers currently stored**, not estimates for the whole Madrid job market.
 
-## API endpoints
+Some offers are labelled `Unknown` because the current rule-based detector could not identify a technology in their title or description. The remote indicator is also inferred from keywords, so it may need manual verification.
 
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/health` | Check API availability |
-| GET | `/jobs` | Return all job records |
-| GET | `/jobs/{job_id}` | Return one job by ID |
-| GET | `/stats/summary` | Return aggregated job-market statistics |
+## API
 
-The `/jobs` endpoint accepts optional filters:
+FastAPI provides interactive documentation at `/docs` when the application is running.
 
-- `technology`
-- `location`
-- `remote`
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /health` | Check whether the API is running |
+| `GET /jobs` | List job offers |
+| `GET /jobs/{job_id}` | Retrieve one offer |
+| `GET /stats/summary` | View job counts and salary summaries |
 
-Example:
+`GET /jobs` supports `technology`, `location`, `remote` and `source` filters, plus `limit` and `offset` for pagination.
+
+For example:
 
 ```text
-GET /jobs?technology=AWS&location=Madrid&remote=true
+/jobs?location=Madrid&source=adzuna&limit=20&offset=0
 ```
 
-## Local installation
+## Run locally with Docker
 
-Clone the repository:
-
-```powershell
-git clone https://github.com/SNDLM/careerpulse-ai.git
-cd careerpulse-ai
-```
-
-Create the virtual environment:
-
-```powershell
-py -3.12 -m venv .venv
-```
-
-Install the project and development dependencies:
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
-```
-
-Create the local environment file:
+You need Docker with Compose and Adzuna API credentials. Copy the example environment file and fill in the required values:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Replace the placeholder values in `.env` with your local PostgreSQL configuration. The real `.env` file must never be committed.
+Keep `.env` private: it contains your database password and API credentials.
 
-## Running the API
+Build the image and start the services from the project directory:
 
 ```powershell
-.\.venv\Scripts\python.exe -m uvicorn careerpulse.api:app --reload
+docker build -t careerpulse-ai:local .
+docker compose up -d
 ```
 
-Useful local addresses:
+Once the containers are running:
 
-- API documentation: `http://127.0.0.1:8000/docs`
-- Health check: `http://127.0.0.1:8000/health`
-- Job records: `http://127.0.0.1:8000/jobs`
-- Market summary: `http://127.0.0.1:8000/stats/summary`
+- Dashboard: http://localhost:8501
+- API documentation: http://localhost:8000/docs
+- API health check: http://localhost:8000/health
 
-## Quality checks
+To check the ingestion worker:
 
-Run the automated tests:
+```powershell
+docker compose logs ingestion
+```
+
+The containers use a PostgreSQL volume, so stopping them with `docker compose down` does not remove the stored database data.
+
+## Run the checks
+
+From a Python 3.12 virtual environment with the development dependencies installed:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -v
-```
-
-Run the code-quality checks:
-
-```powershell
 .\.venv\Scripts\python.exe -m ruff check .
 ```
 
-GitHub Actions automatically runs both checks on every push and pull request.
+GitHub Actions runs the quality checks when changes are pushed.
 
-## Roadmap
+## Built with
 
-- [x] Project structure and Python packaging
-- [x] CSV extraction and transformation
-- [x] Processed CSV generation
-- [x] PostgreSQL integration
-- [x] ETL pipeline
-- [x] REST API
-- [x] Filtering and summary statistics
-- [x] Automated testing
-- [x] Continuous integration
-- [x] Real job-source ingestion
-- [ ] Exploratory analysis notebooks
-- [ ] Interactive dashboard
-- [ ] Docker containerization
-- [ ] AWS deployment
-- [ ] AI-assisted job-market insights
+Python 3.12 · PostgreSQL · Psycopg · FastAPI · Streamlit · pandas · Docker Compose · pytest · Ruff · GitHub Actions
+
+## Current limitations and next steps
+
+This is a portfolio project, and the dataset is still small. Salary figures are only available for offers that include them. Technology and remote detection currently use rules and keywords.
+
+The next steps are to expand the analysis, improve data quality, and publish a free live demo. Despite the project name, **there is no machine learning model or generative AI feature yet**; I plan to add one only when it solves a clear problem in the data.
 
 ## Author
 
-**Sergio Nieto de la Morena**
-
-GitHub: [SNDLM](https://github.com/SNDLM)
-
-## REST API
-
-CareerPulse provides a REST API to explore job listings stored in PostgreSQL. Interactive documentation is available at `/docs` while the API is running.
-
-| Endpoint | Description |
-| --- | --- |
-| `GET /health` | Check that the API is running. |
-| `GET /jobs` | List job postings. |
-| `GET /jobs/{job_id}` | Get a job by its internal ID. |
-| `GET /stats/summary` | Get job counts and salary statistics. |
-
-### Filtering and pagination
-
-`GET /jobs` accepts these optional parameters:
-
-| Parameter | Example | Description |
-| --- | --- | --- |
-| `technology` | `Python` | Filter by technology. |
-| `location` | `Madrid` | Filter by location. |
-| `remote` | `true` | Show remote or non-remote jobs. |
-| `source` | `adzuna` | Filter by data source (`adzuna` or `csv`). |
-| `limit` | `20` | Maximum results per page, from 1 to 100. |
-| `offset` | `0` | Number of results to skip. |
-
-For example, `/jobs?location=Madrid&source=adzuna&limit=2&offset=1` returns up to two Adzuna jobs in Madrid, skipping the first matching result.
-
-
-## Madrid dashboard
-
-The Streamlit dashboard displays job offers stored in PostgreSQL whose location contains Madrid. It shows the offers, lets you filter by data source, and charts the number of offers by technology.
-
-With PostgreSQL running and your local `.env` configured, start it from the project directory:
-
-```powershell
-.\.venv\Scripts\python.exe -m streamlit run dashboard.py
-```
-
-Open the local address shown in the terminal, usually `http://localhost:8501`.
-
-The current dataset is a small demonstration sample. `Unknown` means that no technology was detected in the offer's title or description.
+Sergio Nieto de la Morena · [GitHub](https://github.com/SNDLM)
