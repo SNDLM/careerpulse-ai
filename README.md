@@ -6,6 +6,8 @@ I built CareerPulse to explore how a small data engineering project works from e
 
 The project focuses on technology jobs in Madrid. It combines offers from the Adzuna API with a small CSV fixture used for development and testing.
 
+![CareerPulse dashboard with Madrid job filters and charts](docs/dashboard.png)
+
 ## What it does
 
 - Collects job offers from Adzuna and reads jobs from a CSV file.
