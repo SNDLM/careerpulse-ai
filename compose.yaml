@@ -39,6 +39,7 @@ services:
       --server.address=0.0.0.0
       --server.port=8501
     environment:
+      PI_BASE_URL: http://api:8000
       DB_HOST: db
       DB_PORT: "5432"
       DB_NAME: careerpulse

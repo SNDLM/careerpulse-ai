@@ -1,6 +1,9 @@
 """Dashboard for Madrid job offers."""
 
+import os
+
 import pandas as pd
+import requests
 import streamlit as st
 from psycopg.rows import dict_row
 
@@ -134,3 +137,47 @@ st.caption(
     "El indicador de trabajo remoto se deduce del texto de la oferta. "
     "Es una muestra pequeña y no representa todo el mercado laboral de Madrid."
 )
+
+st.divider()
+st.subheader("Buscar ofertas con IA")
+st.caption("Busca por significado, aunque la oferta use otras palabras.")
+
+with st.form("semantic_search"):
+    search_query = st.text_input(
+        "¿Qué tipo de trabajo buscas?",
+        placeholder="Por ejemplo: ingeniería de datos con Python",
+    )
+    search_limit = st.slider("Número de resultados", 1, 10, 3)
+    submitted = st.form_submit_button("Buscar")
+
+if submitted:
+    if not search_query.strip():
+        st.warning("Escribe qué tipo de trabajo buscas.")
+    else:
+        api_url = os.getenv("API_BASE_URL", "http://127.0.0.1:8000")
+
+        try:
+            response = requests.get(
+                f"{api_url}/jobs/semantic-search",
+                params={"q": search_query, "limit": search_limit},
+                timeout=180,
+            )
+            response.raise_for_status()
+            st.session_state["search_results"] = response.json()
+        except requests.RequestException:
+            st.error("No se pudo consultar la API. Comprueba que está arrancada.")
+
+if "search_results" in st.session_state:
+    results = st.session_state["search_results"]
+
+    if not results:
+        st.info("No se encontraron ofertas con descripción.")
+    else:
+        for job in results:
+            label = f"{job['title']} · {job['company']}"
+
+            with st.expander(label):
+                st.write(f"**Ubicación:** {job['location']}")
+                st.write(f"**Tecnología:** {job['technology']}")
+                st.write(f"**Similitud:** {job['similarity']:.3f}")
+                st.write(job["description"])
